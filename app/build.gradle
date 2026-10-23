@@ -1,0 +1,59 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.separatesound'
+    // compileSdk 37 is required by the libxposed service 102.0.0 AAR metadata;
+    // targetSdk stays 34 (runtime behaviour opt-in is a separate choice).
+    compileSdk 37
+
+    // Signing is pinned to separatesound.keystore in the repo root so every
+    // release carries the same certificate and updates install in place
+    // (no uninstall needed between versions).
+    signingConfigs {
+        sepsound {
+            storeFile rootProject.file('separatesound.keystore')
+            storePassword 'separatesound'
+            keyAlias 'separatesound'
+            keyPassword 'separatesound'
+        }
+    }
+
+    defaultConfig {
+        applicationId 'app.separatesound'
+        minSdk 27
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.sepsound
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.sepsound
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    // Modern libxposed API (https://github.com/libxposed).
+    // - api: provided by the framework at runtime (compileOnly).
+    // - service: binds LSPosed's XposedService so the settings UI can read and
+    //   write the same remote preferences the hook consumes.
+    compileOnly 'io.github.libxposed:api:102.0.0'
+    implementation 'io.github.libxposed:service:102.0.0'
+}
